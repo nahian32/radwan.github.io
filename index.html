@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+  <title>Happy Birthday — My MOON</title>
+  <style>
+    /* --- 1. VARIABLES & BASICS --- */
+    :root{
+      --bg1:#ffd1e6; --bg2:#ffe9f5; 
+      --accent:#4c7df0; --accent-2:#ff7aa2; --accent-3:#70e0a3; --accent-4:#ffd166;
+      --text:#402c3c; --white:#fff;
+      --shadow:0 10px 25px rgba(0,0,0,.18); --soft-shadow:0 6px 20px rgba(0,0,0,.12);
+    }
+    *{box-sizing:border-box} html,body{height:100%;margin:0}
+    body{
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+      color:var(--text);
+      background: linear-gradient(180deg, #ffeaf4, #d6f0ff);
+      overflow-x:hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* --- 2. HAPPY BIRTHDAY BUNTING BANNER --- */
+    #banner-container {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 1;
+      transition: filter 1.5s ease, opacity 1.5s ease;
+      display: flex; flex-direction: column; align-items: center; padding-top: 20px;
+    }
+    #banner-container.blurred { filter: blur(8px); opacity: 0.4; }
+
+    .string-row { position: relative; display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; width: 100%; }
+    .string-svg { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 120%; height: 50px; z-index: -1; }
+    .string-path { fill: none; stroke: #ccc; stroke-width: 2; }
+
+    .flag {
+      width: 45px; height: 55px; background: var(--accent-2); color: white; font-weight: 900; font-size: 24px;
+      display: grid; place-items: center; clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+      box-shadow: 0 4px 5px rgba(0,0,0,0.1); transform-origin: top center;
+      animation: sway 3s ease-in-out infinite alternate;
+    }
+    .flag:nth-child(odd) { background: var(--accent-2); animation-delay: 0.1s; }
+    .flag:nth-child(2n) { background: var(--accent); animation-delay: 0.3s; }
+    .flag:nth-child(3n) { background: var(--accent-3); animation-delay: 0.5s; }
+    .flag:nth-child(4n) { background: var(--accent-4); animation-delay: 0.2s; }
+    .flag:nth-child(5n) { background: #e14986; animation-delay: 0.4s; }
+    @keyframes sway { 0% { transform: rotate(-3deg); } 100% { transform: rotate(3deg); } }
+
+    /* --- 3. FESTIVAL INTRO OVERLAY --- */
+    #intro-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, #fff0f6 0%, #ffeaf4 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    
+    /* Intro Background Elements */
+    .festival-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    
+    /* Floating Hearts */
+    .intro-heart {
+      position: absolute; color: #ff4d6d; font-size: 24px;
+      animation: floatUpHeart linear forwards; opacity: 0;
+      text-shadow: 0 2px 5px rgba(255, 77, 109, 0.2);
+    }
+    @keyframes floatUpHeart {
+      0% { transform: translateY(110vh) scale(0.5) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.8; }
+      100% { transform: translateY(-10vh) scale(1.2) rotate(360deg); opacity: 0; }
+    }
+
+    /* Floating Ribbons */
+    .ribbon {
+      position: absolute; width: 6px; height: 12px;
+      border-radius: 4px; animation: ribbonFall linear forwards;
+      opacity: 0.7;
+    }
+    @keyframes ribbonFall { to { transform: translateY(110vh) rotate(720deg); } }
+
+    /* Intro Content */
+    .intro-content {
+      position: relative; z-index: 10;
+      display: flex; flex-direction: column; align-items: center;
+      width: 90%; max-width: 500px;
+    }
+
+    .gift-image {
+      width: 250px; height: auto;
+      /* Using a drop shadow to make it pop */
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+      animation: bounceSoft 2s infinite ease-in-out;
+      margin-bottom: 25px;
+      border-radius: 20px;
+    }
+
+    .intro-text-box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 25px; border-radius: 25px;
+      box-shadow: 0 10px 30px rgba(225, 73, 134, 0.2);
+      border: 3px solid #fff;
+      animation: fadeIn 1s ease forwards;
+      max-width: 90%;
+    }
+
+    .intro-title {
+      font-size: 24px; color: #e14986; font-weight: 800; line-height: 1.5;
+      margin: 0; text-shadow: 0 2px 0 #fff;
+    }
+
+    /* The Delayed Button */
+    #final-btn-container {
+      margin-top: 35px;
+      opacity: 0; transform: translateY(20px);
+      transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      pointer-events: none;
+    }
+    #final-btn-container.visible {
+      opacity: 1; transform: translateY(0); pointer-events: auto;
+    }
+
+    .btn-final {
+      background: linear-gradient(45deg, #ff7aa2, #e14986);
+      color: white; border: none; padding: 18px 36px;
+      font-size: 19px; font-weight: bold; border-radius: 50px;
+      box-shadow: 0 10px 25px rgba(225, 73, 134, 0.4);
+      cursor: pointer; animation: pulseBtn 1.5s infinite;
+      display: flex; align-items: center; gap: 10px;
+      border: 2px solid #fff;
+    }
+    .btn-final:active { transform: scale(0.95); }
+
+    @keyframes bounceSoft { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes pulseBtn { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
+    @keyframes fadeIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
+    @keyframes fadeOverlay { to{opacity:0; visibility:hidden;} }
+
+    /* --- 4. MAIN STAGE (Game Elements) --- */
+    .lights{position:absolute; top:0; left:0; right:0; height:70px; display:flex; justify-content:center; gap:20px; pointer-events:none; z-index: 2;}
+    .bulb{width:12px;height:12px;border-radius:50%;box-shadow:0 0 12px rgba(255,255,255,.7), 0 0 30px currentColor inset; animation:twinkle 2.8s ease-in-out infinite}
+    .bulb:nth-child(1){color:#ff7aa2;animation-delay:.1s} .bulb:nth-child(2){color:#70e0a3;animation-delay:.6s}
+    .bulb:nth-child(3){color:#ffd166;animation-delay:1.2s} .bulb:nth-child(4){color:#7aa2ff;animation-delay:1.7s}
+    .bulb:nth-child(5){color:#f78fb3;animation-delay:2.2s}
+    @keyframes twinkle{0%,100%{opacity:.45;transform:translateY(0)}50%{opacity:1;transform:translateY(3px)}}
+
+    .confetti{position:absolute; inset:0; pointer-events:none; z-index: 5;}
+    .piece{position:absolute; width:6px; height:12px; border-radius:2px; opacity:.9; transform:rotate(0deg) translateY(-40px); animation:fall linear forwards}
+    @keyframes fall{0%{transform:translateY(-40px) rotate(0deg)} 100%{transform:translateY(110vh) rotate(720deg)}}
+    
+    .messages{position:absolute; inset:0; pointer-events:none; z-index:3}
+    .msg{position:absolute; background:#fdf7ff; color:#a04a7a; border:1px solid rgba(224,73,134,.15); padding:6px 10px; border-radius:14px;
+      font-size: clamp(11px, 2.4vw, 14px); box-shadow: 0 8px 20px rgba(164,74,122,.12); opacity:0; transform:translateY(40px) scale(.95);
+      animation:drift 7s ease-in-out forwards; white-space:nowrap}
+    @keyframes drift{ 0%{opacity:0;transform:translateY(40px) scale(.95)} 10%{opacity:.8} 50%{opacity:1;transform:translateY(-40px) scale(1)} 100%{opacity:0;transform:translateY(-120px) scale(1.05)} }
+
+    .balloons{position:absolute; left:0; right:0; bottom:8%; display:flex; flex-wrap:wrap; gap:18px; justify-content:center; z-index:10; transition: transform 1s ease, bottom 1s ease;}
+    .balloons.gather{bottom:30%; transform:scale(1.02)}
+    .balloon{
+      position:relative; width:min(26vw,150px); height:min(26vw,150px);
+      display:grid; place-items:center; border-radius:50%; box-shadow:var(--shadow);
+      animation:float 6s ease-in-out infinite;
+      background: radial-gradient(circle at 30% 25%, var(--balloon-light,#fff) 0%, var(--balloon-mid,#ffd6ea) 30%, var(--balloon-base,#ffb3d2) 65%, var(--balloon-deep,#f288b6) 100%);
+    }
+    .balloon::after{content:""; position:absolute; bottom:-28px; left:50%; width:2px; height:40px; background:#c9a2b5; transform:translateX(-50%)}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+    .face{width:84%; height:84%}
+    
+    .wander{ animation: wander var(--wander-dur,12s) ease-in-out infinite; }
+    @keyframes wander{
+      0%{transform:translate(0,0) rotate(0deg)} 20%{transform:translate(20px,-14px) rotate(-2deg)}
+      40%{transform:translate(-26px,-8px) rotate(3deg)} 60%{transform:translate(18px,10px) rotate(-3deg)}
+      80%{transform:translate(-16px,18px) rotate(2deg)} 100%{transform:translate(0,0) rotate(0deg)}
+    }
+
+    .bubble-msg{
+      position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:#fff; color:#e14986; border:1px solid rgba(225,73,134,.25);
+      border-radius:12px; padding:6px 8px; font-size:12px; box-shadow:var(--soft-shadow); white-space:nowrap; opacity:.95;
+    }
+    .bubble-msg::after{
+      content:""; position:absolute; bottom:-8px; left:50%; transform:translateX(-50%);
+      width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:8px solid #fff;
+    }
+
+    .chat{position:absolute; left:50%; top:20%; transform:translateX(-50%) scale(.9); background:#fff; border:1px solid rgba(64,44,60,.12);
+      border-radius:18px; padding:10px 14px; box-shadow:var(--soft-shadow); display:none; z-index:20; animation:pop .5s ease forwards}
+    .chat::after{content:""; position:absolute; bottom:-10px; left:50%; transform:translateX(-50%); width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid #fff; filter: drop-shadow(0 3px 2px rgba(0,0,0,.08))}
+    .chat__title{font-weight:800; color:#e14986} .chat__sub{font-size:13px; color:#7a5870}
+    @keyframes pop{0%{opacity:0; transform:translateX(-50%) scale(.8)}100%{opacity:1; transform:translateX(-50%) scale(1)}}
+
+    .cake-area{position:absolute; left:0; right:0; bottom:14%; display:grid; place-items:center; z-index:15}
+    .cake{position:relative; width:min(68vw,460px); height:min(40vw,260px); display:none}
+    .cake__stand{position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:60%; height:14%; background: linear-gradient(180deg, #ffe8f5, #f3c2da); border-radius:12px 12px 20px 20px; box-shadow:var(--shadow)}
+    .cake__plate{position:absolute; bottom:12%; left:50%; transform:translateX(-50%); width:72%; height:10%; background:#fff; border:1px solid rgba(64,44,60,.1); border-radius:40px; box-shadow:var(--soft-shadow)}
+    .cake__body{position:absolute; bottom:20%; left:50%; transform:translateX(-50%); width:68%; height:50%; background:linear-gradient(180deg,#ffe0ed 0 40%, #ffb3d2 40% 70%, #f39fc7 70% 100%); border-radius:18px; box-shadow:var(--shadow); overflow:hidden}
+    .cake__frost{position:absolute; top:-6px; left:0; right:0; height:18px; background: radial-gradient(circle at 20% 0, #fff 20%, transparent 22%) repeat-x; background-size:28px 18px; filter: drop-shadow(0 2px 0 rgba(255,255,255,.9))}
+    .candles{position:absolute; bottom: calc(20% + 42%); left:50%; transform:translateX(-50%); display:flex; gap:22px;}
+    .candle{width:16px; height:48px; border-radius:6px; background: linear-gradient(180deg, #ffd166, #ff9f1a); position:relative; box-shadow:0 2px 8px rgba(0,0,0,.15)}
+    .flame{position:absolute; top:-16px; left:50%; transform:translateX(-50%); width:12px; height:18px; background: radial-gradient(closest-side, #fff 20%, #ffd166 60%, #ff7f50 100%); border-radius:10px; filter: drop-shadow(0 0 8px rgba(255,127,80,.8)); animation:flicker .25s infinite alternate}
+    .flame.off{opacity:0; animation:none; filter:none}
+    @keyframes flicker{0%{transform:translateX(-50%) scale(1); opacity:1}100%{transform:translateX(-50%) scale(.9); opacity:.85}}
+
+    .knife{position:absolute; width:160px; height:26px; right:10%; bottom:55%; transform-origin:right center; transform:rotate(18deg) translateX(0); display:none; z-index:25}
+    .knife .blade{position:absolute; left:0; top:0; width:120px; height:12px; background:linear-gradient(90deg,#cdd2d6,#f1f3f5); border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,.2)}
+    .knife .handle{position:absolute; right:0; top:-2px; width:40px; height:18px; background:#533d4a; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.25)}
+    .wedge{position:absolute; bottom:20%; left:50%; width:0; height:0; transform:translateX(-50%) translateY(0) rotate(0deg); display:none; z-index:14}
+    .wedge:before{content:""; position:absolute; width:0; height:0; border-left:60px solid transparent; border-right:60px solid transparent; border-top:120px solid #ffb3d2; filter: drop-shadow(0 10px 20px rgba(0,0,0,.18)); border-radius:8px}
+    .wedge:after{content:""; position:absolute; top:-6px; left:-60px; width:120px; height:12px; background:#fff; border-radius:8px; filter: drop-shadow(0 2px 0 rgba(255,255,255,.9))}
+    .cake.cutting .knife{display:block; animation:knifeCut 1.6s ease forwards}
+    @keyframes knifeCut{ 0%{transform:rotate(18deg) translateX(0)} 30%{transform:rotate(-10deg) translateX(-20px)} 50%{transform:rotate(-16deg) translateX(-40px)} 80%{transform:rotate(-14deg) translateX(-60px)} 100%{transform:rotate(-12deg) translateX(-60px)} }
+    .cake.slice-out .wedge{display:block; animation:wedgeLift 1.6s ease forwards}
+    @keyframes wedgeLift{ 0%{transform:translateX(-50%) translateY(0) rotate(0deg)} 40%{transform:translateX(-60%) translateY(-8px) rotate(-3deg)} 80%{transform:translateX(-80%) translateY(-28px) rotate(-8deg)} 100%{transform:translateX(-90%) translateY(-40px) rotate(-10deg)} }
+
+    /* CONTROLS (Sequential Flow) */
+    .controls{
+      position:fixed; left:0; right:0; bottom:0; 
+      background: rgba(255,255,255,.85); backdrop-filter: blur(10px); 
+      box-shadow: 0 -8px 25px rgba(225, 73, 134, 0.15); 
+      padding:16px 14px; display:flex; flex-direction: column; align-items:center; justify-content:center; 
+      z-index:50; min-height: 80px;
+    }
+    .btn-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    
+    .btn{
+      border:none; border-radius:50px; padding:12px 24px; font-weight:700; letter-spacing:.5px; font-size: 16px;
+      box-shadow: 0 4px 15px rgba(225, 73, 134, 0.25); background:var(--accent); color:#fff; 
+      transition: all .2s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor:pointer;
+      display: none; /* Hidden by default */
+    }
+    .btn.active { display: inline-block; animation: fadeInUp 0.6s ease forwards; }
+    @keyframes fadeInUp { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
+    .btn:hover{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(225, 73, 134, 0.35); }
+    .btn:active{ transform: scale(.95) }
+    .btn.secondary{ background:#ff7aa2 } 
+    .btn.ghost{ background:#fff; color:#e14986; border:2px solid #e14986; }
+
+    /* Instruction Bubble */
+    .instruction {
+      background: #fff; color: #e14986; padding: 10px 18px; border-radius: 20px;
+      margin-bottom: 12px; font-weight: 600; font-size: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 2px solid #ffeaf4;
+      animation: bounceIn 0.5s; display: none; text-align: center;
+    }
+    .instruction.show { display: block; }
+    @keyframes bounceIn { 0%{transform:scale(0.5);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+
+    .dialogue{position:absolute; left:50%; bottom:35%; transform:translateX(-50%); background:#fff; border:1px solid rgba(64,44,60,.1); border-radius:14px; box-shadow:var(--soft-shadow); padding:10px 12px; display:none; z-index:40; max-width:min(86vw,560px)}
+    .dialogue .line{font-size:14px; color:#4b3950; margin:4px 0}
+    .dialogue .who{font-weight:700; color:#e14986; margin-right:6px}
+
+    @media (max-width:640px){
+      .balloons{ gap:14px }
+      .candles{ gap:16px }
+      .chat{ top:18%; max-width:90% }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Audio Files -->
+  <audio id="sound-blow" src="blow.mp3" preload="auto"></audio>
+  <audio id="sound-pop" src="pop.mp3" preload="auto"></audio>
+  <audio id="sound-happy" src="happy.mp3" preload="auto" loop></audio>
+
+  <!-- BACKGROUND BUNTING BANNER -->
+  <div id="banner-container">
+    <div class="string-row">
+      <svg class="string-svg" viewBox="0 0 500 50" preserveAspectRatio="none"><path class="string-path" d="M0,0 Q250,50 500,0" /></svg>
+      <div class="flag">H</div><div class="flag">A</div><div class="flag">P</div><div class="flag">P</div><div class="flag">Y</div>
+    </div>
+    <div class="string-row" style="margin-top:20px;">
+      <svg class="string-svg" viewBox="0 0 600 60" preserveAspectRatio="none"><path class="string-path" d="M0,0 Q300,60 600,0" /></svg>
+      <div class="flag">B</div><div class="flag">I</div><div class="flag">R</div><div class="flag">T</div><div class="flag">H</div><div class="flag">D</div><div class="flag">A</div><div class="flag">Y</div>
+    </div>
+  </div>
+
+  <!-- FESTIVAL INTRO OVERLAY -->
+  <div id="intro-overlay">
+    <!-- Festive Background (Hearts & Ribbons) -->
+    <div class="festival-bg" id="festival-bg"></div>
+
+    <div class="intro-content">
+      <!-- 
+           Replaced Broken GIF with a working Cute Bear/Character holding flowers.
+           If this link ever breaks, you can use: https://media.tenor.com/v2M0sXvP5wUAAAAi/quby-chan-flowers.gif
+      -->
+      <img src="https://media.tenor.com/Eqq1PqC2A_QAAAAi/flower-love.gif" alt="Cute Gift" class="gift-image" id="intro-gif">
+      
+      <div class="intro-text-box">
+        <h1 class="intro-title">
+          In this special day for my wifeee,<br>
+          A little gift from her guru jiii
+        </h1>
+      </div>
+
+      <!-- The Button (Pops up automatically after 5.5s) -->
+      <div id="final-btn-container">
+        <button id="btn-final-surprise" class="btn-final">
+          Baby click on this for the final surprise 🎁
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lights -->
+  <div class="lights" aria-hidden="true">
+    <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+  </div>
+
+  <!-- Stage -->
+  <main class="stage" role="main">
+    <div class="confetti" id="confetti"></div>
+    <div class="messages" id="messages" aria-hidden="true"></div>
+
+    <!-- Balloons -->
+    <section class="balloons" id="balloons" aria-label="Emoji balloons">
+      <div class="balloon wander" data-mood="happy" style="--balloon-light:#fff;--balloon-mid:#ffe1f1;--balloon-base:#ffb3d2;--balloon-deep:#f288b6;--wander-dur:11s">
+        <div class="bubble-msg">my mams bithday today</div>
+        <svg class="face" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="transparent"/>
+          <circle cx="35" cy="40" r="6" fill="#402c3c"/><circle cx="65" cy="40" r="6" fill="#402c3c"/>
+          <path d="M30 62 Q50 75 70 62" stroke="#402c3c" stroke-width="5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="balloon wander" data-mood="winky" style="--balloon-light:#fff;--balloon-mid:#ffd6ea;--balloon-base:#ffa7d1;--balloon-deep:#ff7ab5;--wander-dur:13s">
+        <div class="bubble-msg">my cutiee my wiffyyy</div>
+        <svg class="face" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="transparent"/>
+          <circle cx="35" cy="40" r="6" fill="#402c3c"/>
+          <path d="M60 40 h16" stroke="#402c3c" stroke-width="5" stroke-linecap="round"/>
+          <path d="M30 64 Q50 78 70 64" stroke="#402c3c" stroke-width="5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="balloon wander" data-mood="love" style="--balloon-light:#fff;--balloon-mid:#ffd1f0;--balloon-base:#ff98c8;--balloon-deep:#ff66a8;--wander-dur:12s">
+        <div class="bubble-msg">my swityyy</div>
+        <svg class="face" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="transparent"/>
+          <path d="M30 38 q5-8 12 0 q-6 8 -12 0" fill="#e14986"/>
+          <path d="M58 38 q5-8 12 0 q-6 8 -12 0" fill="#e14986"/>
+          <path d="M30 62 Q50 74 70 62" stroke="#402c3c" stroke-width="5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="balloon wander" data-mood="cheeky" style="--balloon-light:#fff;--balloon-mid:#fff0d6;--balloon-base:#ffd38f;--balloon-deep:#ffb85a;--wander-dur:13.3s">
+        <div class="bubble-msg">giggle giggle</div>
+        <svg class="face" viewBox="0 0 100 100">
+          <circle cx="35" cy="40" r="6" fill="#402c3c"/><circle cx="65" cy="40" r="6" fill="#402c3c"/>
+          <path d="M30 66 Q50 70 70 66" stroke="#402c3c" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <circle cx="30" cy="58" r="4" fill="#ff9dbb"/><circle cx="70" cy="58" r="4" fill="#ff9dbb"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- Chat bubble -->
+    <div class="chat" id="chat" aria-live="polite">
+      <div class="chat__title">Happy Birthday “My MOON”</div>
+      <div class="chat__sub">Wishing you endless smiles, soft light, and all the sweetest moments.</div>
+    </div>
+
+    <!-- Cake area -->
+    <section class="cake-area" aria-label="Birthday cake">
+      <div class="cake" id="cake">
+        <div class="cake__stand"></div>
+        <div class="cake__plate"></div>
+        <div class="cake__body">
+          <div class="cake__frost"></div>
+        </div>
+        <div class="candles" id="candles">
+          <div class="candle"><div class="flame"></div></div>
+          <div class="candle"><div class="flame"></div></div>
+          <div class="candle"><div class="flame"></div></div>
+        </div>
+        <div class="knife" id="knife">
+          <div class="blade"></div><div class="handle"></div>
+        </div>
+        <div class="wedge" id="wedge"></div>
+      </div>
+    </section>
+
+    <!-- Dialogue panel -->
+    <div class="dialogue" id="dialogue"></div>
+  </main>
+
+  <!-- Bottom controls (SEQUENTIAL FLOW) -->
+  <nav class="controls" aria-label="Controls">
+    <div class="instruction" id="instruct-box"></div>
+    <div class="btn-group">
+      <!-- 1. Start here -->
+      <button class="btn active" id="btnShowCake">Bring in the Cake! 🎂</button>
+      
+      <!-- 2. Mic Step -->
+      <button class="btn secondary" id="btnMic">Make a Wish (Mic) 🎤</button>
+      
+      <!-- 3. Cut Step -->
+      <button class="btn" id="btnCut">Cut the Cake 🔪</button>
+      
+      <!-- 4. Story Step -->
+      <button class="btn ghost" id="btnStory">Play Story 📖</button>
+      
+      <!-- Reset -->
+      <button class="btn ghost" id="btnReset">Reset</button>
+    </div>
+  </nav>
+
+  <script>
+    // --- INTRO SEQUENCE LOGIC ---
+    const introOverlay = document.getElementById('intro-overlay');
+    const finalBtnContainer = document.getElementById('final-btn-container');
+    const btnFinalSurprise = document.getElementById('btn-final-surprise');
+    const festivalBg = document.getElementById('festival-bg');
+    const happySound = document.getElementById('sound-happy');
+    const banner = document.getElementById('banner-container');
+
+    // 1. Setup Festival Background (Hearts & Ribbons)
+    function createHearts() {
+      const colors = ['#ff4d6d', '#ff7aa2', '#e14986', '#70e0a3'];
+      const symbols = ['♥', '❤', '❥', '✨'];
+      
+      setInterval(() => {
+        const heart = document.createElement('div');
+        heart.className = 'intro-heart';
+        heart.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+        heart.style.fontSize = (20 + Math.random() * 30) + 'px';
+        heart.style.animationDuration = (4 + Math.random() * 3) + 's';
+        festivalBg.appendChild(heart);
+        setTimeout(() => heart.remove(), 7000);
+        
+        // Occasional Ribbon
+        if(Math.random() > 0.7) {
+            const ribbon = document.createElement('div');
+            ribbon.className = 'ribbon';
+            ribbon.style.left = Math.random() * 100 + '%';
+            ribbon.style.background = colors[Math.floor(Math.random() * colors.length)];
+            ribbon.style.animationDuration = (3 + Math.random()*2) + 's';
+            festivalBg.appendChild(ribbon);
+            setTimeout(()=> ribbon.remove(), 5000);
+        }
+      }, 300);
+    }
+
+    // 2. Start Intro Animation on Load
+    window.addEventListener('load', () => {
+      createHearts();
+      // Show the button after 5.5 seconds
+      setTimeout(() => {
+        finalBtnContainer.classList.add('visible');
+      }, 5500);
+    });
+
+    // 3. Button Click Action
+    btnFinalSurprise.addEventListener('click', () => {
+      // Fade out intro
+      introOverlay.style.animation = 'fadeOverlay 1s forwards';
+      banner.classList.add('blurred');
+      
+      // Start Music
+      happySound.volume = 0.5;
+      happySound.play().catch(e => console.log("Audio waiting"));
+
+      // Start Main Scene
+      setTimeout(() => {
+        introOverlay.style.display = 'none';
+        startMainScene();
+      }, 1000);
+    });
+
+    function startMainScene() {
+      spawnConfetti(80);
+      gatherBalloons();
+      happySound.play();
+    }
+
+
+    // --- MAIN GAME VARIABLES (Existing logic) ---
+    const blowSound = document.getElementById('sound-blow');
+    const popSound = document.getElementById('sound-pop');
+
+    const balloons = document.getElementById('balloons');
+    const cake = document.getElementById('cake');
+    const candles = document.getElementById('candles');
+    const chat = document.getElementById('chat');
+    const confetti = document.getElementById('confetti');
+    const messages = document.getElementById('messages');
+    const knife = document.getElementById('knife');
+    const wedge = document.getElementById('wedge');
+    const dialogueBox = document.getElementById('dialogue');
+    const instructionBox = document.getElementById('instruct-box');
+
+    // Buttons
+    const btnShowCake = document.getElementById('btnShowCake');
+    const btnMic = document.getElementById('btnMic');
+    const btnCut = document.getElementById('btnCut');
+    const btnStory = document.getElementById('btnStory');
+    const btnReset = document.getElementById('btnReset');
+
+    // --- SEQUENTIAL BUTTON LOGIC ---
+
+    // 1. Show Cake Clicked
+    btnShowCake.addEventListener('click', () => {
+      showCake();
+      btnShowCake.classList.remove('active');
+      setTimeout(() => {
+        btnShowCake.style.display = 'none';
+        btnMic.classList.add('active');
+        instructionBox.textContent = "Baby, tap the mic button and blow air into your phone! 💨";
+        instructionBox.classList.add('show');
+      }, 500);
+    });
+
+    // 2. Mic Logic
+    let micOn = false, mediaStream=null, audioCtx=null, analyser=null, dataArray=null, blowTriggered=false;
+    
+    btnMic.addEventListener('click', () => {
+        if(!micOn) { enableMic(); } else { blowCandles(); }
+    });
+
+    async function enableMic(){
+      try{
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioCtx.createMediaStreamSource(mediaStream);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 2048;
+        source.connect(analyser);
+        dataArray = new Uint8Array(analyser.fftSize);
+        micOn = true; 
+        btnMic.textContent = 'Listening... Blow now! 🌬️';
+        monitorBlow();
+      } catch(err){
+        btnMic.textContent = 'Tap here to Blow Candles 🌬️';
+        micOn = true;
+      }
+    }
+
+    function monitorBlow(){
+      if(!micOn || !analyser || blowTriggered) return;
+      analyser.getByteTimeDomainData(dataArray);
+      let sum=0;
+      for(let i=0;i<dataArray.length;i++){
+        const v = (dataArray[i]-128)/128; sum += v*v;
+      }
+      const rms = Math.sqrt(sum/dataArray.length);
+      if(rms > 0.05 && !blowTriggered){
+        blowTriggered = true;
+        blowCandles();
+      }
+      requestAnimationFrame(monitorBlow);
+    }
+
+    // 3. Blow Candles
+    function blowCandles(){
+      candles.querySelectorAll('.flame').forEach(f=> f.classList.add('off'));
+      blowSound.play();
+      spawnConfetti(80);
+      spawnMessages(8);
+      sayLine({who:"All", text:"YAYYY! Happy Birthday “My MOON”"});
+      cheerBalloons();
+
+      if(mediaStream){ mediaStream.getTracks().forEach(t=> t.stop()); }
+      micOn = false;
+
+      btnMic.classList.remove('active');
+      instructionBox.classList.remove('show');
+      setTimeout(() => {
+        btnMic.style.display = 'none';
+        btnCut.classList.add('active');
+      }, 500);
+    }
+
+    // 4. Cut Cake
+    btnCut.addEventListener('click', () => {
+      cutCake();
+      btnCut.classList.remove('active');
+      setTimeout(() => {
+        btnCut.style.display = 'none';
+        btnStory.classList.add('active');
+      }, 500);
+    });
+
+    // 5. Play Story
+    btnStory.addEventListener('click', () => {
+       playStory();
+    });
+
+    btnReset.addEventListener('click', () => {
+       location.reload();
+    });
+
+    // --- VISUAL FUNCTIONS ---
+    function showCake(){
+      cake.style.display = 'block';
+      spawnConfetti(70);
+      spawnMessages(10);
+      balloons.classList.add('gather');
+      setTimeout(()=> { chat.style.display = 'block'; }, 700);
+    }
+    
+    function gatherBalloons(){
+      balloons.classList.add('gather');
+      spawnMessages(6);
+    }
+
+    let cutting = false;
+    function cutCake(){
+      if(cutting) return;
+      cutting = true;
+      cake.classList.add('cutting');
+      knife.style.display = 'block';
+      setTimeout(()=>{
+        cake.classList.remove('cutting');
+        cake.classList.add('slice-out');
+        wedge.style.display = 'block';
+        spawnConfetti(60);
+        bounceBalloons();
+        setTimeout(()=> { cutting = false; }, 1800);
+      }, 1700);
+    }
+    function bounceBalloons(){
+      balloons.querySelectorAll('.balloon').forEach(b=>{
+        b.style.animation = 'none';
+        b.offsetHeight; 
+        b.style.animation = 'float 0.9s ease-in-out 2';
+      });
+    }
+
+    function cheerBalloons(){
+      balloons.querySelectorAll('.balloon').forEach(b=>{ popSound.play(); });
+      balloons.querySelectorAll('.balloon .bubble-msg').forEach(b=>{
+        b.textContent = 'HAPPY BIRTHDAY MY MOON';
+      });
+      setTimeout(()=>{
+        const lines = ["my mams bithday today","my mams bithday to day","my cutiee my wiffyyy","my swityyy","we cool we party","giggle giggle"];
+        balloons.querySelectorAll('.balloon .bubble-msg').forEach(b=>{
+          b.textContent = lines[Math.floor(Math.random()*lines.length)];
+        });
+      }, 2200);
+    }
+
+    const quotes = [
+      "My moon, my calm","Precious girl","You glow in my sky","Soft light, loud laughter","Sweet as your smile",
+      "Pink skies and you","Sparkle, always","Bloom softly, shine boldly","My favorite person",
+      "my cutiee my wiffyyy","my swityyy","my mams bithday today"
+    ];
+
+    function spawnMessages(batch=10){
+      for(let i=0;i<batch;i++){
+        const m = document.createElement('div');
+        m.className = 'msg';
+        m.textContent = quotes[Math.floor(Math.random()*quotes.length)];
+        m.style.left = Math.random()*90 + '%';
+        m.style.bottom = (10 + Math.random()*60) + '%';
+        m.style.animationDelay = (Math.random()*4) + 's';
+        messages.appendChild(m);
+        setTimeout(()=> m.remove(), 8000);
+      }
+    }
+    setInterval(()=> spawnMessages(3), 4000);
+
+    function spawnConfetti(count=60){
+      confetti.innerHTML = "";
+      const colors = ['#ff6f91','#ffdd59','#70e0a3','#7aa2ff'];
+      for(let i=0;i<count;i++){
+        const p = document.createElement('div');
+        p.className = 'piece';
+        p.style.left = Math.random()*100 + '%';
+        p.style.top = (-Math.random()*40) + 'px';
+        p.style.background = colors[i % colors.length];
+        p.style.animationDuration = (4 + Math.random()*3) + 's';
+        p.style.animationDelay = (Math.random()*2) + 's';
+        p.style.transform = `translateY(-40px) rotate(${Math.random()*360}deg)`;
+        confetti.appendChild(p);
+      }
+    }
+    
+    // --- STORY ---
+    const story = [
+      {who:"Happy", text:"we floatting for someone specal… my mams bithday today"},
+      {who:"Love", text:"my cutiee my wiffyyy. my swityyy — you glow like moon"},
+      {who:"Cheeky", text:"You are the sparkle in my day, the calm in my night."},
+      {who:"Winky", text:"Every moment with you is my favorite moment."},
+      {who:"Moon", text:"You make the world softer, brighter, and so much sweeter."},
+      {who:"All", text:"I love you to the moon and back. Happy Birthday!"}
+    ];
+    function sayLine(line){
+      dialogueBox.style.display = 'block';
+      const el = document.createElement('div');
+      el.className = 'line';
+      el.innerHTML = `<span class="who">${line.who}:</span> ${line.text}`;
+      dialogueBox.appendChild(el);
+      dialogueBox.scrollTop = dialogueBox.scrollHeight;
+    }
+    function playStory(){
+      let i=0;
+      const step = ()=> {
+        if(i < story.length){
+          sayLine(story[i]);
+          i++;
+          setTimeout(step, 2500); 
+        } else {
+          setTimeout(() => {
+             btnReset.classList.add('active'); 
+          }, 1000);
+        }
+      };
+      step();
+    }
+    
+    function randomizeWander(){
+      document.querySelectorAll('.balloon').forEach(b=>{
+        const dur = (10 + Math.random()*5).toFixed(1) + 's';
+        b.style.setProperty('--wander-dur', dur);
+      });
+    }
+    randomizeWander();
+    
+    const popStyle = document.createElement('style');
+    popStyle.textContent = `@keyframes popmsg{ 0%,100%{transform:translateX(-50%) translateY(0); opacity:.95} 50%{transform:translateX(-50%) translateY(-4px); opacity:1} }`;
+    document.head.appendChild(popStyle);
+
+  </script>
+</body>
+</html>
